@@ -44,6 +44,7 @@ npm run build
 ```
 
 This will:
+
 1. Compile TypeScript.
 2. Build the React app with Vite.
 3. Bundle the Content Script and Injection Hook.
@@ -57,7 +58,13 @@ To run in watch mode:
 npm run dev
 ```
 
-*Note: You still need to reload the extension in `chrome://extensions` heavily during development as content scripts don't always hot-reload perfectly depending on the context.*
+To run linting:
+
+```bash
+npm run lint
+```
+
+_Note: You still need to reload the extension in `chrome://extensions` heavily during development as content scripts don't always hot-reload perfectly depending on the context._
 
 ## Architecture
 
@@ -82,6 +89,7 @@ npm run dev
 ## Release
 
 This repository uses GitHub Actions to automatically build and release the extension.
+
 - Push to `master` triggers a release.
 - The workflow parses `package.json` version.
 - A new GitHub Release is created with the zipped extension.
