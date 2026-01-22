@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Tracker Test Page</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+            background: #eee;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #ddd;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            min-height: 50px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .instruction {
+            background: #eef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Test Page</h1>
+    <div class="instruction">
+        <strong>Instructions:</strong>
+        <ol>
+            <li>Open the Extension Popup.</li>
+            <li>Add a new Page setting.</li>
+            <li>Page Pattern: <code>*localhost*</code> (or specific port)</li>
+            <li>Add Rule: <code>*jsonplaceholder*</code>, Method: GET, POST.</li>
+            <li>Refresh this page.</li>
+            <li>Click the buttons below.</li>
+        </ol>
+    </div>
+
+    <div>
+        <button id="fetch-get">Fetch GET</button>
+        <button id="fetch-post">Fetch POST</button>
+        <button id="xhr-get">XHR GET</button>
+        <button id="untracked">Untracked (example.com)</button>
+    </div>
+
+    <div id="result">Waiting for action...</div>
+
+    <script type="module" src="./test.ts"></script>
+</body>
+
+</html>
