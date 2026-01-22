@@ -99,46 +99,54 @@ export default function App() {
             {configs.length === 0 ? (
                 <EmptyState onAdd={() => openForm()} />
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {configs.map((config) => (
                         <div
                             key={config.id}
-                            className={`group bg-white rounded-xl p-4 transition-all border ${config.enabled ? 'border-gray-200 shadow-sm hover:shadow-md' : 'border-gray-100 opacity-75'
+                            className={`bg-white rounded-lg p-3 transition-all border flex items-center justify-between ${config.enabled
+                                ? 'border-gray-200 shadow-sm hover:shadow-md'
+                                : 'border-gray-100 bg-gray-50/50 opacity-80'
                                 }`}
                         >
-                            <div className="flex justify-between items-start mb-2">
-                                <div className="flex-1 mr-4">
-                                    <h3 className="font-semibold text-gray-800 break-all">{config.pagePattern}</h3>
-                                    <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full mt-1 inline-block">
-                                        {config.rules.length} Rules
+                            <div className="flex-1 min-w-0 mr-3">
+                                <h3 className={`font-medium text-sm truncate ${config.enabled ? 'text-gray-900' : 'text-gray-500'}`} title={config.pagePattern}>
+                                    {config.pagePattern}
+                                </h3>
+                                <div className="flex items-center mt-1 space-x-2">
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${config.enabled ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                                        {config.rules.length} Rule{config.rules.length !== 1 ? 's' : ''}
                                     </span>
-                                </div>
-                                <div className="flex space-x-2">
-                                    <button
-                                        onClick={() => handleToggle(config.id)}
-                                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${config.enabled ? 'bg-green-500' : 'bg-gray-200'
-                                            }`}
-                                    >
-                                        <span
-                                            className={`${config.enabled ? 'translate-x-5' : 'translate-x-1'
-                                                } inline-block h-3 w-3 transform rounded-full bg-white transition-transform`}
-                                        />
-                                    </button>
                                 </div>
                             </div>
 
-                            <div className="flex justify-end space-x-3 mt-4 pt-3 border-t border-gray-50 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-1">
                                 <button
                                     onClick={() => openForm(config.id)}
-                                    className="text-gray-500 hover:text-blue-600 text-sm font-medium transition-colors"
+                                    className="p-1.5 text-gray-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
+                                    title="Edit Configuration"
                                 >
-                                    Edit
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                 </button>
                                 <button
                                     onClick={() => handleDelete(config.id)}
-                                    className="text-gray-500 hover:text-red-500 text-sm font-medium transition-colors"
+                                    className="p-1.5 text-gray-400 hover:text-red-500 rounded-md hover:bg-red-50 transition-colors"
+                                    title="Delete Configuration"
                                 >
-                                    Delete
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+
+                                <div className="w-px h-4 bg-gray-200 mx-1"></div>
+
+                                <button
+                                    onClick={() => handleToggle(config.id)}
+                                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${config.enabled ? 'bg-green-500' : 'bg-gray-300'
+                                        }`}
+                                    title={config.enabled ? "Enabled" : "Disabled"}
+                                >
+                                    <span
+                                        className={`${config.enabled ? 'translate-x-5' : 'translate-x-1'
+                                            } inline-block h-3 w-3 transform rounded-full bg-white transition-transform shadow-sm`}
+                                    />
                                 </button>
                             </div>
                         </div>
