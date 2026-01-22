@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Tracker Test Page (Static)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+            background-color: #f7f9fc;
+            color: #333;
+        }
+
+        h1 {
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: #111;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            border: 1px solid #edf2f7;
+        }
+
+        .instructions {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 2rem;
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+            color: #2b6cb0;
+            font-size: 1.1rem;
+        }
+
+        .instructions ol {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        button:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.primary {
+            background: #3182ce;
+            color: white;
+            border-color: #3182ce;
+        }
+
+        button.primary:hover {
+            background: #2c5282;
+            border-color: #2c5282;
+        }
+
+        #result {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            min-height: 100px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-top: 1rem;
+        }
+
+        code {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 4px;
+            rounded: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Network Tracker Test</h1>
+
+    <div class="card">
+        <div class="instructions">
+            <h3>Setup Instructions</h3>
+            <ol>
+                <li>Open <strong>Extension Popup</strong>.</li>
+                <li>Add Page Setting: <strong>Page Pattern:</strong> <code>*test.html*</code> (matches this file).</li>
+                <li>Add Rule: <strong>Rule:</strong> <code>*jsonplaceholder*</code>.</li>
+                <li><strong>Refresh this page</strong>.</li>
+            </ol>
+        </div>
+
+        <div class="btn-group">
+            <button id="fetch-get" class="primary">Fetch GET</button>
+            <button id="fetch-post">Fetch POST</button>
+            <button id="xhr-get">XHR GET</button>
+            <button id="hybrid-post">Hybrid Post (Dirty JSON)</button>
+            <button id="untracked">Untracked Request</button>
+        </div>
+
+        <div>
+            <div id="result">Initializing...</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const resultDiv = document.getElementById('result');
+            const log = (msg) => {
+                const time = new Date().toLocaleTimeString();
+                resultDiv.textContent = `[${time}] ${msg}\n` + resultDiv.textContent;
+            };
+
+            resultDiv.textContent = 'Ready. Waiting for user interaction...';
+
+            document.getElementById('fetch-get').addEventListener('click', async () => {
+                log('🚀 Triggering Fetch GET...');
+                try {
+                    const res = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+                    const data = await res.json();
+                    log('✅ GET Success: ' + JSON.stringify(data).substring(0, 60) + '...');
+                } catch (e) {
+                    log('❌ GET Error: ' + e);
+                }
+            });
+
+            document.getElementById('fetch-post').addEventListener('click', async () => {
+                log('🚀 Triggering Fetch POST...');
+                try {
+                    const res = await fetch('https://jsonplaceholder.typicode.com/posts', {
+                        method: 'POST',
+                        body: JSON.stringify({ title: 'foo', body: 'bar', userId: 1 }),
+                        headers: { 'Content-type': 'application/json; charset=UTF-8' },
+                    });
+                    const data = await res.json();
+                    log('✅ POST Success: ' + JSON.stringify(data).substring(0, 60) + '...');
+                } catch (e) {
+                    log('❌ POST Error: ' + e);
+                }
+            });
+
+            document.getElementById('xhr-get').addEventListener('click', () => {
+                log('🚀 Triggering XHR GET...');
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'https://jsonplaceholder.typicode.com/comments?postId=1');
+                xhr.onload = () => log('✅ XHR Success: ' + xhr.responseText.substring(0, 60) + '...');
+                xhr.onerror = () => log('❌ XHR Error');
+                xhr.send();
+            });
+
+            document.getElementById('hybrid-post').addEventListener('click', async () => {
+                log('🚀 Triggering Hybrid POST (Dirty JSON)...');
+                try {
+                    // Simulating the user's case: JSON + garbage
+                    const body = JSON.stringify({ event_type: "web_events", data: { id: 999 } }) + "&authenticity_token=xyz123";
+                    const res = await fetch('https://jsonplaceholder.typicode.com/posts', {
+                        method: 'POST',
+                        body: body,
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' } // or text/plain
+                    });
+                    const data = await res.text();
+                    log('✅ Hybrid POST Sent. Body: ' + body.substring(0, 40) + '...');
+                } catch (e) {
+                    log('❌ Hybrid POST Error: ' + e);
+                }
+            });
+
+            document.getElementById('untracked').addEventListener('click', () => {
+                log('Triggering Untracked Request (example.com)...');
+                fetch('https://example.com').catch(e => log('Untracked fetch error: ' + e));
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -4,6 +4,8 @@ export interface Rule {
     id: string;
     urlPattern: string; // glob
     methods: HttpMethod[];
+    requestVar?: string;
+    responseVar?: string;
 }
 
 export interface PageConfig {
@@ -22,6 +24,9 @@ export interface NetworkLog {
     responseBody?: string | object | null;
     timestamp: number;
     type: 'fetch' | 'xhr';
+    // Extracted values
+    extractedRequestVar?: any;
+    extractedResponseVar?: any;
 }
 
 export interface NetworkEventMessage {

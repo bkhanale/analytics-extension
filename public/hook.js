@@ -1,6 +1,7 @@
 (function () {
     console.log('Network Tracker Hook Loaded');
-    // Utility: Glob to Regex (Inlined)
+
+    // Utility: Glob to Regex
     function globToRegex(glob) {
         var escaped = glob.replace(/[.+^${}()|[\]\\]/g, '\\$&');
         var pattern = escaped.replace(/\*/g, '.*');
@@ -15,6 +16,18 @@
             console.warn('Invalid glob pattern:', glob, e);
             return false;
         }
+    }
+
+    // Utility: Deep Property Accessor
+    function getNestedProperty(obj, path) {
+        if (!obj || !path) return undefined;
+        var keys = path.split('.');
+        var current = obj;
+        for (var i = 0; i < keys.length; i++) {
+            if (current === null || current === undefined) return undefined;
+            current = current[keys[i]];
+        }
+        return current;
     }
 
     // Logic
@@ -42,14 +55,19 @@
     // Try to load rules immediately
     getRules();
 
-    function shouldTrack(url, method) {
+    function getMatchingRule(url, method) {
         var rules = getRules();
-        var match = rules.some(function (rule) {
+        var matchedRule = null;
+        rules.some(function (rule) {
             if (rule.methods.indexOf(method) === -1 && rule.methods.indexOf('OPTIONS') === -1) return false;
-            return matchesGlob(url, rule.urlPattern);
+            if (matchesGlob(url, rule.urlPattern)) {
+                matchedRule = rule;
+                return true;
+            }
+            return false;
         });
-        if (match) console.log('[NT Hook] Matched:', method, url);
-        return match;
+        if (matchedRule) console.log('[NT Hook] Matched:', method, url, 'Rule:', matchedRule.urlPattern);
+        return matchedRule;
     }
 
     function generateId() {
@@ -57,12 +75,25 @@
     }
 
     function sendEvent(log) {
-        console.log('[NT Hook] Sending:', log);
+        // console.log('[NT Hook] Sending:', log);
         window.postMessage({ type: 'NETWORK_EVENT', payload: log }, '*');
     }
 
     function safeJson(text) {
-        try { return JSON.parse(text); } catch (e) { return text; }
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            // Heuristic for "Dirty JSON": {"key": "value"}&other=stuff sent as text content
+            // We try to find the last valid closing brace that makes a valid JSON object.
+            var lastBrace = text.lastIndexOf('}');
+            if (lastBrace > 0) {
+                try {
+                    var cleaned = text.substring(0, lastBrace + 1);
+                    return JSON.parse(cleaned);
+                } catch (e2) { }
+            }
+            return text;
+        }
     }
 
     // PATCH FETCH
@@ -73,7 +104,8 @@
         var url = (resource instanceof Request) ? resource.url : resource.toString();
         var method = (config && config.method || ((resource instanceof Request) ? resource.method : 'GET')).toUpperCase();
 
-        if (!shouldTrack(url, method)) {
+        var rule = getMatchingRule(url, method);
+        if (!rule) {
             return originalFetch.apply(window, args);
         }
 
@@ -86,30 +118,36 @@
             reqBodyDisplay = safeJson(requestBody);
         }
 
-        sendEvent({
+        var log = {
             id: id,
             method: method,
             url: url,
             status: 0,
             requestBody: reqBodyDisplay,
             timestamp: timestamp,
-            type: 'fetch'
-        });
+            type: 'fetch',
+            extractedRequestVar: getNestedProperty(reqBodyDisplay, rule.requestVar)
+        };
+
+        sendEvent(log);
 
         try {
             var response = await originalFetch.apply(window, args);
             var clone = response.clone();
 
             clone.text().then(function (text) {
+                var resBody = safeJson(text);
                 sendEvent({
                     id: id,
                     method: method,
                     url: url,
                     status: response.status,
                     requestBody: reqBodyDisplay,
-                    responseBody: safeJson(text),
+                    responseBody: resBody,
                     timestamp: timestamp,
-                    type: 'fetch'
+                    type: 'fetch',
+                    extractedRequestVar: log.extractedRequestVar,
+                    extractedResponseVar: getNestedProperty(resBody, rule.responseVar)
                 });
             }).catch(function () { });
 
@@ -123,7 +161,8 @@
                 requestBody: reqBodyDisplay,
                 responseBody: 'Network Error',
                 timestamp: timestamp,
-                type: 'fetch'
+                type: 'fetch',
+                extractedRequestVar: log.extractedRequestVar
             });
             throw err;
         }
@@ -138,7 +177,10 @@
     };
 
     XHR.send = function (body) {
-        if (!this._nt_url || !shouldTrack(this._nt_url, this._nt_method)) {
+        if (!this._nt_url) return originalSend.apply(this, arguments);
+
+        var rule = getMatchingRule(this._nt_url, this._nt_method);
+        if (!rule) {
             return originalSend.apply(this, arguments);
         }
 
@@ -150,15 +192,18 @@
 
         if (typeof body === 'string') reqBodyDisplay = safeJson(body);
 
-        sendEvent({
+        var log = {
             id: id,
             method: method,
             url: url,
             status: 0,
             requestBody: reqBodyDisplay,
             timestamp: timestamp,
-            type: 'xhr'
-        });
+            type: 'xhr',
+            extractedRequestVar: getNestedProperty(reqBodyDisplay, rule.requestVar)
+        };
+
+        sendEvent(log);
 
         this.addEventListener('load', function () {
             var resBody = null;
@@ -182,7 +227,9 @@
                 requestBody: reqBodyDisplay,
                 responseBody: resBody,
                 timestamp: timestamp,
-                type: 'xhr'
+                type: 'xhr',
+                extractedRequestVar: log.extractedRequestVar,
+                extractedResponseVar: getNestedProperty(resBody, rule.responseVar)
             });
         });
 
@@ -195,7 +242,8 @@
                 requestBody: reqBodyDisplay,
                 responseBody: 'Network Error',
                 timestamp: timestamp,
-                type: 'xhr'
+                type: 'xhr',
+                extractedRequestVar: log.extractedRequestVar
             });
         });
 

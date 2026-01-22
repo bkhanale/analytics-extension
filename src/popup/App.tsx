@@ -245,6 +245,29 @@ const PageForm = ({
                                     className="w-full mb-3 px-3 py-2 bg-white border border-gray-200 rounded-md focus:ring-1 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
                                 />
 
+                                <div className="grid grid-cols-2 gap-2 mb-3">
+                                    <div className="relative">
+                                        <label className="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Req. Prop</label>
+                                        <input
+                                            type="text"
+                                            value={rule.requestVar || ''}
+                                            onChange={(e) => updateRule(idx, 'requestVar', e.target.value)}
+                                            placeholder="e.g. data.id"
+                                            className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+                                        />
+                                    </div>
+                                    <div className="relative">
+                                        <label className="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Res. Prop</label>
+                                        <input
+                                            type="text"
+                                            value={rule.responseVar || ''}
+                                            onChange={(e) => updateRule(idx, 'responseVar', e.target.value)}
+                                            placeholder="e.g. user.token"
+                                            className="w-full px-2 py-1.5 bg-white border border-gray-200 rounded text-xs focus:ring-1 focus:ring-blue-500 outline-none"
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="flex flex-wrap gap-2">
                                     {methodOptions.map((m) => (
                                         <button

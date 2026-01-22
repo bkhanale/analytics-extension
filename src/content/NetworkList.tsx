@@ -53,14 +53,30 @@ export const NetworkList = ({ logs, onClear, onRemove }: Props) => {
                             className="flex items-center justify-between p-2 cursor-pointer select-none"
                             onClick={() => toggleExpand(log.id)}
                         >
-                            <div className="flex items-center space-x-2 overflow-hidden flex-1">
-                                <span className={`text-[10px] font-bold px-1 rounded ${log.method === 'GET' ? 'bg-blue-100 text-blue-700' :
-                                    log.method === 'POST' ? 'bg-green-100 text-green-700' :
-                                        log.method === 'DELETE' ? 'bg-red-100 text-red-700' : 'bg-purple-100 text-purple-700'
-                                    }`}>{log.method}</span>
-                                <div className="truncate text-xs font-medium text-gray-700 flex-1" title={log.url}>
-                                    {new URL(log.url).pathname}
+                            <div className="flex flex-col overflow-hidden flex-1">
+                                <div className="flex items-center space-x-2">
+                                    <span className={`text-[10px] font-bold px-1 rounded ${log.method === 'GET' ? 'bg-blue-100 text-blue-700' :
+                                        log.method === 'POST' ? 'bg-green-100 text-green-700' :
+                                            log.method === 'DELETE' ? 'bg-red-100 text-red-700' : 'bg-purple-100 text-purple-700'
+                                        }`}>{log.method}</span>
+                                    <div className="truncate text-xs font-medium text-gray-700 flex-1" title={log.url}>
+                                        {new URL(log.url).pathname}
+                                    </div>
                                 </div>
+                                {(log.extractedRequestVar !== undefined || log.extractedResponseVar !== undefined) && (
+                                    <div className="flex items-center space-x-2 mt-1 ml-1 text-[10px] font-mono text-gray-500">
+                                        {log.extractedRequestVar !== undefined && (
+                                            <span className="bg-blue-50 text-blue-600 px-1 rounded border border-blue-100" title="Request Value">
+                                                req: {JSON.stringify(log.extractedRequestVar)}
+                                            </span>
+                                        )}
+                                        {log.extractedResponseVar !== undefined && (
+                                            <span className="bg-purple-50 text-purple-600 px-1 rounded border border-purple-100" title="Response Value">
+                                                res: {JSON.stringify(log.extractedResponseVar)}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                             <div className="flex items-center space-x-2 ml-2">
                                 <StatusBadge status={log.status} />

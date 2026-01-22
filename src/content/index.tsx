@@ -23,6 +23,7 @@ async function init() {
         // 1. Inject Config via Attribute (CSP safe)
         // We use a custom attribute on the document element to pass the config synchronously
         document.documentElement.dataset.ntRules = JSON.stringify(matchedConfig.rules);
+        document.documentElement.dataset.ntConfigPattern = matchedConfig.pagePattern;
 
         // 2. Inject Interceptor
         const script = document.createElement('script');
