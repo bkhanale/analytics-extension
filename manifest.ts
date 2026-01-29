@@ -1,0 +1,39 @@
+import { defineManifest } from '@crxjs/vite-plugin';
+import { version } from './package.json';
+
+export default defineManifest({
+  manifest_version: 3,
+  name: 'Network Tracker',
+  version,
+  description:
+    'Track and monitor network requests (fetch/XHR) on any page with customizable rules.',
+  icons: {
+    '16': 'icon-16.png',
+    '32': 'icon-32.png',
+    '48': 'icon-48.png',
+    '128': 'icon-128.png',
+  },
+  action: {
+    default_popup: 'src/popup/index.html',
+    default_icon: {
+      '16': 'icon-16.png',
+      '32': 'icon-32.png',
+      '48': 'icon-48.png',
+      '128': 'icon-128.png',
+    },
+  },
+  permissions: ['storage'],
+  content_scripts: [
+    {
+      matches: ['<all_urls>'],
+      js: ['src/content/index.tsx'],
+      run_at: 'document_start',
+    },
+  ],
+  web_accessible_resources: [
+    {
+      resources: ['hook.js'],
+      matches: ['<all_urls>'],
+    },
+  ],
+});
