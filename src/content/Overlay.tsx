@@ -6,6 +6,7 @@ import css from '../index.css?inline';
 export const Overlay = () => {
   const [logs, setLogs] = useState<NetworkLog[]>([]);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     // Load persisted collapse state
@@ -41,6 +42,8 @@ export const Overlay = () => {
     setIsCollapsed(newState);
     chrome.storage.local.set({ nt_collapsed: newState });
   };
+
+  if (!isVisible) return null;
 
   // If no logs, show nothing (per "As soon as the event appears it gets inserted")
   if (logs.length === 0)
@@ -115,6 +118,24 @@ export const Overlay = () => {
                 </svg>
               </button>
             )}
+            <div className="h-4 w-px bg-gray-200 mx-2"></div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsVisible(false);
+              }}
+              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1 rounded-md transition-all"
+              title="Close Session"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
           </div>
         </div>
         {!isCollapsed && (

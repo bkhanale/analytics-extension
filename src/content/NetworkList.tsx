@@ -28,7 +28,7 @@ export const NetworkList = ({ logs, onRemove }: Props) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white font-sans text-sm">
+    <div className="flex flex-col flex-1 min-h-0 bg-white font-sans text-sm">
       <div className="flex-1 overflow-y-auto no-scrollbar p-2 space-y-2 bg-gray-50/50">
         {logs.length === 0 && (
           <div className="text-center text-gray-400 py-8 text-xs">Waiting for requests...</div>
